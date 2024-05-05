@@ -25,7 +25,6 @@ public class Cancellation {
 
             // Output the cancellation code if the flight was cancelled
             if (cancel.equals("1") &&
-                    !cancel.equals("NA") &&
                     !cancel.equals("Cancelled") &&
                     !cancellationCode.equals("NA") &&
                     !cancellationCode.equals("CancellationCode") &&
@@ -58,7 +57,7 @@ public class Cancellation {
         }
 
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "Schedule");
+        Job job = Job.getInstance(conf, "Cancellation");
         job.setJarByClass(Cancellation.class);
         job.setMapperClass(CancellationMapper.class);
         job.setReducerClass(CancellationReducer.class);

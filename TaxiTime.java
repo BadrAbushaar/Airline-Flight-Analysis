@@ -31,13 +31,13 @@ public class TaxiTime {
                     !originAirport.equals("Origin") &&
                     !originTaxi.equals("NA") &&
                     !destTaxi.equals("NA")) {
-                
+
                 try {
                     context.write(new Text(originAirport), new DoubleWritable(Double.parseDouble(originTaxi)));
                 } catch (NumberFormatException e) {
                     // Continue with no action if parsing fails for originTaxi
                 }
-                
+
                 try {
                     context.write(new Text(destAirport), new DoubleWritable(Double.parseDouble(destTaxi)));
                 } catch (NumberFormatException e) {
@@ -96,7 +96,7 @@ public class TaxiTime {
             for (int i = 0; i < Math.min(avgTaxis.size(), 3); i++) {
                 context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).onTimeProb));
             }
-            for (int i = Math.max(0, avgTaxis.size()-3); i < avgTaxis.size(); i++) {
+            for (int i = Math.max(0, avgTaxis.size() - 3); i < avgTaxis.size(); i++) {
                 context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).onTimeProb));
             }
         }
@@ -116,12 +116,11 @@ public class TaxiTime {
         job.setReducerClass(TaxiTimeReducer.class);
 
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-
+        job.setOutputValueClass(DoubleWritable.class);
 
         String inputFolder = args[0];
         String outputPath = args[1];
-        int startYear = 1987 ;
+        int startYear = 1987;
         int numYears = Integer.parseInt(args[2]);
 
         for (int i = 0; i < numYears; i++) {
