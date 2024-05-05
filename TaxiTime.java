@@ -127,12 +127,7 @@ public class TaxiTime {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            if (new File(filePath).exists()) {
-                FileInputFormat.addInputPath(job, new Path(filePath));
-            }
-            else{
-                break;
-            }            
+            FileInputFormat.addInputPath(job, new Path(filePath));     
         }
 
         FileOutputFormat.setOutputPath(job, new Path(outputPath));

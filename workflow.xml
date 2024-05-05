@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workflow-app xmlns="uri:oozie:workflow:0.5" name="mapreduce-jobs">
 
-    <!-- Define input parameters -->
-    <parameters>
-        <parameter name="jobTracker">job-tracker-host:8021</parameter>
-        <parameter name="nameNode">hdfs://name-node-host:8020</parameter>
-        <parameter name="userName">oozie-user</parameter>
-        <parameter name="numYears">1</parameter>
-    </parameters>
 
     <!-- Start node -->
     <start to="schedule"/>
@@ -32,7 +25,6 @@
                 </property>
             </configuration>
             <file>${nameNode}/user/${userName}/Schedule.jar</file>
-            <class>Schedule</class>
         </map-reduce>
         <ok to="taxitime"/>
         <error to="kill"/>
@@ -58,7 +50,6 @@
                 </property>
             </configuration>
             <file>${nameNode}/user/${userName}/TaxiTime.jar</file>
-            <class>TaxiTime</class>
         </map-reduce>
         <ok to="cancellation"/>
         <error to="kill"/>
@@ -84,7 +75,6 @@
                 </property>
             </configuration>
             <file>${nameNode}/user/${userName}/Cancellation.jar</file>
-            <class>Cancellation</class>
         </map-reduce>
         <ok to="end"/>
         <error to="kill"/>
