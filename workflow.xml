@@ -1,0 +1,129 @@
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="hadoop-serial-execution">
+    <start to="hadoop-node-1"/>
+
+    <!-- Hadoop job 1 -->
+    <action name="hadoop-node-1">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapreduce.job.name</name>
+                    <value>Schedule 1</value>
+                </property>
+                <property>
+                    <name>mapreduce.input.fileinputformat.inputdir</name>
+                    <value>${inputFolder1}</value>
+                </property>
+                <property>
+                    <name>mapreduce.output.fileoutputformat.outputdir</name>
+                    <value>${outputPath1}</value>
+                </property>
+                <property>
+                    <name>mapreduce.reduce.tasks</name>
+                    <value>${reduceTasks}</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.class</name>
+                    <value>Schedule</value>
+                </property>
+                <property>
+                    <name>mapreduce.schedule.startyear</name>
+                    <value>${startYear}</value>
+                </property>
+                <property>
+                    <name>mapreduce.schedule.numyears</name>
+                    <value>${numYears}</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="hadoop-node-2"/>
+        <error to="fail"/>
+    </action>
+
+    <!-- Hadoop job 2 -->
+    <action name="hadoop-node-2">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapreduce.job.name</name>
+                    <value>Taxi Times</value>
+                </property>
+                <property>
+                    <name>mapreduce.input.fileinputformat.inputdir</name>
+                    <value>${inputFolder2}</value>
+                </property>
+                <property>
+                    <name>mapreduce.output.fileoutputformat.outputdir</name>
+                    <value>${outputPath2}</value>
+                </property>
+                <property>
+                    <name>mapreduce.reduce.tasks</name>
+                    <value>${reduceTasks}</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.class</name>
+                    <value>TaxiTime</value>
+                </property>
+                <property>
+                    <name>mapreduce.schedule.startyear</name>
+                    <value>${startYear}</value>
+                </property>
+                <property>
+                    <name>mapreduce.schedule.numyears</name>
+                    <value>${numYears}</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="hadoop-node-3"/>
+        <error to="fail"/>
+    </action>
+
+    <!-- Hadoop job 3 -->
+    <action name="hadoop-node-3">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapreduce.job.name</name>
+                    <value>Schedule 3</value>
+                </property>
+                <property>
+                    <name>mapreduce.input.fileinputformat.inputdir</name>
+                    <value>${inputFolder3}</value>
+                </property>
+                <property>
+                    <name>mapreduce.output.fileoutputformat.outputdir</name>
+                    <value>${outputPath3}</value>
+                </property>
+                <property>
+                    <name>mapreduce.reduce.tasks</name>
+                    <value>${reduceTasks}</value>
+                </property>
+                <property>
+                    <name>mapreduce.job.class</name>
+                    <value>Cancellation</value>
+                </property>
+                <property>
+                    <name>mapreduce.schedule.startyear</name>
+                    <value>${startYear}</value>
+                </property>
+                <property>
+                    <name>mapreduce.schedule.numyears</name>
+                    <value>${numYears}</value>
+                </property>
+            </configuration>
+        </map-reduce>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <kill name="fail">
+        <message>Job failed</message>
+    </kill>
+
+    <end name="end"/>
+</workflow-app>
