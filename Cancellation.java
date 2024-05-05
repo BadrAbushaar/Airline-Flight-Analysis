@@ -1,0 +1,78 @@
+import java.io.IOException;
+import java.util.*;
+
+import javax.naming.Context;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class Cancellation {
+
+    public static class CancellationMapper extends Mapper<Object, Text, Text, IntWritable> {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String line = value.toString();
+            String[] parts = line.split(",");
+            String cancel = parts[21];
+            String cancellationCode = parts[22];
+
+            // Output the cancellation code if the flight was cancelled
+            if (!cancel.equals("NA") &&
+                    !cancel.equals("Cancelled") &&
+                    !cancel.equals("1") &&
+                    !cancellationCode.equals("NA") &&
+                    !cancellationCode.equals("CancellationCode") &&
+                    !cancellationCode.isEmpty()) {
+
+                context.write(new Text(cancellationCode), new IntWritable(1));
+
+            }
+        }
+
+    }
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        if (args.length < 4) {
+            System.err.println("Usage: Schedule <input folder> <output path> <start year> <num years>");
+            System.exit(-1);
+        }
+
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "Schedule");
+        job.setJarByClass(Schedule.class);
+        job.setMapperClass(ScheduleMapper.class);
+        job.setReducerClass(ScheduleReducer.class);
+
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+
+        if (args.length < 4) {
+            System.out.println(
+                    "Required Parameters:\n - [0]: Input Folder\n - [1]: Output Folder\n - Amount of Years to process");
+        }
+
+        String inputFolder = args[0];
+        String outputPath = args[1];
+        int startYear = 1987;
+        int numYears = Integer.parseInt(args[2]);
+
+        for (int i = 0; i < numYears; i++) {
+            int year = startYear + i;
+            String filePath = inputFolder + "/" + year + ".csv";
+            FileInputFormat.addInputPath(job, new Path(filePath));
+        }
+
+        FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+        job.waitForCompletion(true);
+    }
+}
