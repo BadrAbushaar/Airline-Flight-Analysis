@@ -65,13 +65,13 @@ public class Schedule {
 
             // Calculate the percentage of on-time flights
             double onTimeProb = (double) onTimeFlights / (double) totalFlights;
-            onSchedules.add(new OnSchedule(onTimeProb, key.toString()))
+            onSchedules.add(new OnSchedule(onTimeProb, key.toString()));
         }
 
         // Class to store the carrier and the percentage of on-time flights
         class OnSchedule {
-            public String carrier;
             public double onTimeProb;
+            public String carrier;
 
             public OnSchedule(String carrier, double onTimeProb) {
                 this.carrier = carrier;
