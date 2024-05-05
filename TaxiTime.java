@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import java.nio.file.Files;
+
 public class TaxiTime {
 
     public static class TaxiTimeMapper extends Mapper<Object, Text, Text, DoubleWritable> {
@@ -126,8 +126,7 @@ public class TaxiTime {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            Path p = new Path(filePath);
-            if (Files.exists(p)) {
+            if (new File(filePath).exists()) {
                 FileInputFormat.addInputPath(job, new Path(filePath));
             }
             else{

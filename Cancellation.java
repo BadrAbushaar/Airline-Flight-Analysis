@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import java.nio.file.Files;
+
 public class Cancellation {
 
     public static class CancellationMapper extends Mapper<Object, Text, Text, IntWritable> {
@@ -73,7 +73,12 @@ public class Cancellation {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            FileInputFormat.addInputPath(job, new Path(filePath));
+            if (new File(filePath).exists()) {
+                FileInputFormat.addInputPath(job, new Path(filePath));
+            }
+            else{
+                break;
+            }            
         }
 
         FileOutputFormat.setOutputPath(job, new Path(outputPath));
