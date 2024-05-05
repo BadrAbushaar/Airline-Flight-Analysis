@@ -24,9 +24,9 @@ public class Cancellation {
             String cancellationCode = parts[22];
 
             // Output the cancellation code if the flight was cancelled
-            if (!cancel.equals("NA") &&
+            if (cancel.equals("1") &&
+                    !cancel.equals("NA") &&
                     !cancel.equals("Cancelled") &&
-                    !cancel.equals("1") &&
                     !cancellationCode.equals("NA") &&
                     !cancellationCode.equals("CancellationCode") &&
                     !cancellationCode.isEmpty()) {
