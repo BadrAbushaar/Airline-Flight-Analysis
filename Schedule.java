@@ -48,6 +48,8 @@ public class Schedule {
     }
 
     public static class ScheduleReducer extends Reducer<Text, IntWritable, Text, DoubleWritable> {
+        List<OnSchedule> onSchedules = new ArrayList<>();
+
         public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
             int totalFlights = 0;
@@ -62,8 +64,8 @@ public class Schedule {
             }
 
             // Calculate the percentage of on-time flights
-            double onTimeProb = (double) onTimeFlights / totalFlights;
-            context.write(key, new DoubleWritable(onTimeProb));
+            double onTimeProb = (double) onTimeFlights / (double) totalFlights;
+            onSchedules.add(new OnSchedule(onTimeProb, key.toString()))
         }
 
         // Class to store the carrier and the percentage of on-time flights
@@ -88,13 +90,6 @@ public class Schedule {
         // Cleanup method to sort the carriers in descending order of on-time
         // probability
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            List<OnSchedule> onSchedules = new ArrayList<OnSchedule>();
-
-            // Add the carriers and their on-time probabilities to the list
-            for (Text key : context.getCurrentKey()) {
-                onSchedules.add(new OnSchedule(key.toString(), context.getCurrentValue().get()));
-            }
-
             // Sort the carriers in descending order of on-time probability
             Collections.sort(onSchedules, new ReverseSort());
 
@@ -121,12 +116,13 @@ public class Schedule {
         job.setOutputValueClass(IntWritable.class);
 
         if (args.length < 4) {
-            System.out.println("Required Parameters:\n - [0]: Input Folder\n - [1]: Output Folder\n - Amount of Years to process");
+            System.out.println(
+                    "Required Parameters:\n - [0]: Input Folder\n - [1]: Output Folder\n - Amount of Years to process");
         }
 
         String inputFolder = args[0];
         String outputPath = args[1];
-        int startYear = 1987 ;
+        int startYear = 1987;
         int numYears = Integer.parseInt(args[2]);
 
         for (int i = 0; i < numYears; i++) {
