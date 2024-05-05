@@ -101,8 +101,8 @@ public class TaxiTime {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 4) {
-            System.err.println("Usage: Schedule <input folder> <output path> <start year> <num years>");
+        if (args.length < 3) {
+            System.err.println("Usage: Schedule <input folder> <output path> <num years>");
             System.exit(-1);
         }
 
@@ -115,9 +115,6 @@ public class TaxiTime {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
-        if (args.length < 4) {
-            System.out.println("Required Parameters:\n - [0]: Input Folder\n - [1]: Output Folder\n - Amount of Years to process");
-        }
 
         String inputFolder = args[0];
         String outputPath = args[1];

@@ -65,7 +65,7 @@ public class Schedule {
 
             // Calculate the percentage of on-time flights
             double onTimeProb = (double) onTimeFlights / (double) totalFlights;
-            onSchedules.add(new OnSchedule(onTimeProb, key.toString()));
+            onSchedules.add(new OnSchedule(key.toString(), onTimeProb));
         }
 
         // Class to store the carrier and the percentage of on-time flights
@@ -101,8 +101,8 @@ public class Schedule {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 4) {
-            System.err.println("Usage: Schedule <input folder> <output path> <start year> <num years>");
+        if (args.length < 3) {
+            System.err.println("Usage: Schedule <input folder> <output path> <num years>");
             System.exit(-1);
         }
 
@@ -114,11 +114,6 @@ public class Schedule {
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-
-        if (args.length < 4) {
-            System.out.println(
-                    "Required Parameters:\n - [0]: Input Folder\n - [1]: Output Folder\n - Amount of Years to process");
-        }
 
         String inputFolder = args[0];
         String outputPath = args[1];
