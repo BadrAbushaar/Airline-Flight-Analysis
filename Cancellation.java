@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
+import java.nio.file.Files;
 public class Cancellation {
 
     public static class CancellationMapper extends Mapper<Object, Text, Text, IntWritable> {

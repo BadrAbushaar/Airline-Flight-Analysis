@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
+import java.nio.file.Files;
 public class Schedule {
 
     public static class ScheduleMapper extends Mapper<Object, Text, Text, IntWritable> {
@@ -113,7 +113,7 @@ public class Schedule {
         job.setReducerClass(ScheduleReducer.class);
 
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(DoubleWritable.class);
 
         String inputFolder = args[0];
         String outputPath = args[1];
@@ -123,7 +123,13 @@ public class Schedule {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            FileInputFormat.addInputPath(job, new Path(filePath));
+            Path p = new Path(filePath);
+            if (Files.exists(p)) {
+                FileInputFormat.addInputPath(job, new Path(filePath));
+            }
+            else{
+                break;
+            }            
         }
 
         FileOutputFormat.setOutputPath(job, new Path(outputPath));
