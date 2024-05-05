@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Step 1: Compile and Package JARs
-javac -classpath `hadoop classpath` -d schedule_classes /path/to/Schedule.java
-jar -cvf Schedule.jar -C schedule_classes/ .
+javac Schedule.java -cp $(hadoop classpath)
+jar cf Schedule.jar Schedule*.class
 
-javac -classpath `hadoop classpath` -d taxitime_classes /path/to/TaxiTime.java
-jar -cvf TaxiTime.jar -C taxitime_classes/ .
+javac TaxiTime.java -cp $(hadoop classpath)
+jar cf TaxiTime.jar TaxiTime*.class
 
-javac -classpath `hadoop classpath` -d cancellation_classes /path/to/Cancellation.java
-jar -cvf Cancellation.jar -C cancellation_classes/ .
+javac Cancellation.java -cp $(hadoop classpath)
+jar cf Cancellation.jar Cancellation*.class
 
 # Step 2: Upload to HDFS
 USER=$(whoami)
