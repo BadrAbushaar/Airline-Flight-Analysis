@@ -16,7 +16,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class TaxiTime {
 
-    public static class TaxiTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static class TaxiTimeMapper extends Mapper<Object, Text, Text, DoubleWritable> {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
             String[] parts = line.split(",");
@@ -32,14 +32,17 @@ public class TaxiTime {
                     !originTaxi.equals("NA") &&
                     !destTaxi.equals("NA")) {
                 
-                context.write(new Text(originAirport), new DoubleWritable(Double.parseDouble(originTaxi)));
-                context.write(new Text(destAirport), new DoubleWritable(Double.parseDouble(destTaxi)));
-                // // Check if the sum of arrival and departure delays is less than the threshold
-                // if (Float.parseFloat(originTaxi) + Integer.parseInt(delayDeparture) <= delayThreshold) {
-                //     context.write(new Text(carrier), new IntWritable(1)); // Less than threshold
-                // } else {
-                //     context.write(new Text(carrier), new IntWritable(0)); // More than threshold
-                // }
+                try {
+                    context.write(new Text(originAirport), new DoubleWritable(Double.parseDouble(originTaxi)));
+                } catch (NumberFormatException e) {
+                    // Continue with no action if parsing fails for originTaxi
+                }
+                
+                try {
+                    context.write(new Text(destAirport), new DoubleWritable(Double.parseDouble(destTaxi)));
+                } catch (NumberFormatException e) {
+                    // Continue with no action if parsing fails for destTaxi
+                }
             }
 
         }
@@ -90,10 +93,10 @@ public class TaxiTime {
             // Sort the carriers in descending order of on-time probability
             Collections.sort(avgTaxis, new ReverseSort());
 
-            for (int i = 0; i < Math.min(avgTaxis.length, 3); i++) {
+            for (int i = 0; i < Math.min(avgTaxis.size(), 3); i++) {
                 context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).onTimeProb));
             }
-            for (int i = max(0, avgTaxis.length-3); i < avgTaxis.length; i++) {
+            for (int i = Math.max(0, avgTaxis.size()-3); i < avgTaxis.size(); i++) {
                 context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).onTimeProb));
             }
         }

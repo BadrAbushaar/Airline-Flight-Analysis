@@ -1,4 +1,4 @@
 import pandas as pd
 
 
-print(pd.read_csv('2008.csv')['CancellationCode'].unique())
+print(pd.read_csv('2008.csv')['TaxiOut'].unique())

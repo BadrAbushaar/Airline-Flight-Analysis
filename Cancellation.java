@@ -59,9 +59,9 @@ public class Cancellation {
 
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Schedule");
-        job.setJarByClass(Schedule.class);
-        job.setMapperClass(ScheduleMapper.class);
-        job.setReducerClass(ScheduleReducer.class);
+        job.setJarByClass(Cancellation.class);
+        job.setMapperClass(CancellationMapper.class);
+        job.setReducerClass(CancellationReducer.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
