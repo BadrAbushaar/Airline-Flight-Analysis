@@ -12,7 +12,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class FlightAnalysis {
+public class Schedule {
 
     public static class ScheduleMapper extends Mapper<Object, Text, Text, IntWritable> {
 
@@ -22,19 +22,19 @@ public class FlightAnalysis {
 
     }
 
-    public static class TaxiTimeMapper extends Mapper<Object, Text, Text, IntWritable> {
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "CardDeck");
+        job.setJarByClass(Schedule.class);
+        job.setMapperClass(ScheduleMapper.class);
+        job.setReducerClass(ScheduleReducer.class);
+        
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
 
-    }
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-    public static class TaxiTimeReducer extends Reducer<Text, IntWritable, Text, DoubleWritable> {
-
-    }
-
-    public static class CancellationMapper extends Mapper<Object, Text, Text, IntWritable> {
-
-    }
-
-    public static class CancellationReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-
+        job.waitForCompletion(true);
     }
 }
