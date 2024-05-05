@@ -50,8 +50,13 @@ public class Schedule {
     }
 
     public static void main(String[] args) throws Exception {
+        if (args.length < 4) {
+            System.err.println("Usage: Schedule <input folder> <output path> <start year> <num years>");
+            System.exit(-1);
+        }
+
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "CardDeck");
+        Job job = Job.getInstance(conf, "Schedule");
         job.setJarByClass(Schedule.class);
         job.setMapperClass(ScheduleMapper.class);
         job.setReducerClass(ScheduleReducer.class);
@@ -59,8 +64,22 @@ public class Schedule {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        if (args.length < 4) {
+            System.out.println("Required Parameters:\n - [0]: Input Folder\n - [1]: Output Folder\n - Amount of Years to process");
+        }
+
+        String inputFolder = args[0];
+        String outputPath = args[1];
+        int startYear = 1987 ;
+        int numYears = Integer.parseInt(args[2]);
+
+        for (int i = 0; i < numYears; i++) {
+            int year = startYear + i;
+            String filePath = inputFolder + "/" + year + ".csv";
+            FileInputFormat.addInputPath(job, new Path(filePath));
+        }
+
+        FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
         job.waitForCompletion(true);
     }
