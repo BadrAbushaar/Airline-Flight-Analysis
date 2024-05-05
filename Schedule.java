@@ -15,7 +15,33 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 public class Schedule {
 
     public static class ScheduleMapper extends Mapper<Object, Text, Text, IntWritable> {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            final int delayThreshold = 15;
+            String line = value.toString();
+            String[] parts = line.split(",");
+            String year = parts[0];
+            String carrier = parts[8];
+            String delayArrival = parts[14];
+            String delayDeparture = parts[15];
 
+            if (!year.equals("NA") &&
+                    !carrier.equals("NA") &&
+                    !delayArrival.equals("NA") &&
+                    !delayDeparture.equals("NA") &&
+                    !year.equals("Year") &&
+                    !carrier.equals("UniqueCarrier") &&
+                    !delayArrival.equals("ArrDelay") &&
+                    !delayDeparture.equals("DepDelay")) {
+
+                // Check if the sum of arrival and departure delays is less than the threshold
+                if (Integer.parseInt(delayArrival) + Integer.parseInt(delayDeparture) <= delayThreshold) {
+                    context.write(new Text(carrier), new IntWritable(1)); // Less than threshold
+                } else {
+                    context.write(new Text(carrier), new IntWritable(0)); // More than threshold
+                }
+            }
+
+        }
     }
 
     public static class ScheduleReducer extends Reducer<Text, IntWritable, Text, DoubleWritable> {
@@ -28,7 +54,7 @@ public class Schedule {
         job.setJarByClass(Schedule.class);
         job.setMapperClass(ScheduleMapper.class);
         job.setReducerClass(ScheduleReducer.class);
-        
+
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
