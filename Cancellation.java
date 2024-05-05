@@ -31,13 +31,24 @@ public class Cancellation {
                     !cancellationCode.equals("CancellationCode") &&
                     !cancellationCode.isEmpty()) {
 
-                context.write(new Text(cancellationCode), new IntWritable(1));
-
+                context.write(new Text(cancellationCode), new IntWritable(1)); // Output the cancellation code
             }
         }
 
     }
 
+    public static class CancellationReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            int totalFlights = 0;
+
+            // Count the total number of flights
+            for (IntWritable val : values) {
+                totalFlights += val.get();
+            }
+
+            context.write(new Text(key), new IntWritable(totalFlights)); // Output the total number of cancelled flights
+        }
     }
 
     public static void main(String[] args) throws Exception {
