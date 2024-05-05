@@ -24,6 +24,7 @@ public class Schedule {
             String delayArrival = parts[14];
             String delayDeparture = parts[15];
 
+            // Check if the input line is valid
             if (!year.equals("NA") &&
                     !carrier.equals("NA") &&
                     !delayArrival.equals("NA") &&
