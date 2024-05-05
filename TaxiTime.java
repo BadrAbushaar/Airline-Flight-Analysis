@@ -46,6 +46,8 @@ public class TaxiTime {
     }
 
     public static class TaxiTimeReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
+        List<AvgTaxi> avgTaxis = new ArrayList<AvgTaxi>();
+
         public void reduce(Text key, Iterable<DoubleWritable> values, Context context)
                 throws IOException, InterruptedException {
             double count = 0;
@@ -60,6 +62,7 @@ public class TaxiTime {
             // Calculate the percentage of on-time flights
             double onTimeProb = (double) totalTaxi / count;
             context.write(key, new DoubleWritable(onTimeProb));
+            avgTaxis.add(new AvgTaxi(key.toString(), onTimeProb));
         }
 
         // Class to store the carrier and the percentage of on-time flights
@@ -84,13 +87,6 @@ public class TaxiTime {
         // Cleanup method to sort the carriers in descending order of on-time
         // probability
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            List<AvgTaxi> avgTaxis = new ArrayList<AvgTaxi>();
-
-            // Add the carriers and their on-time probabilities to the list
-            for (Text key : context.getCurrentKey()) {
-                avgTaxis.add(new AvgTaxi(key.toString(), context.getCurrentValue().get()));
-            }
-
             // Sort the carriers in descending order of on-time probability
             Collections.sort(avgTaxis, new ReverseSort());
 
@@ -111,10 +107,10 @@ public class TaxiTime {
         }
 
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "Schedule");
-        job.setJarByClass(Schedule.class);
-        job.setMapperClass(ScheduleMapper.class);
-        job.setReducerClass(ScheduleReducer.class);
+        Job job = Job.getInstance(conf, "TaxiTime");
+        job.setJarByClass(TaxiTime.class);
+        job.setMapperClass(TaxiTimeMapper.class);
+        job.setReducerClass(TaxiTimeReducer.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
