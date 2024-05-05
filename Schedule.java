@@ -1,6 +1,8 @@
 import java.io.IOException;
-import java.util.StringTokenizer;
 import java.util.*;
+
+import javax.naming.Context;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -46,6 +48,60 @@ public class Schedule {
     }
 
     public static class ScheduleReducer extends Reducer<Text, IntWritable, Text, DoubleWritable> {
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            int totalFlights = 0;
+            int onTimeFlights = 0;
+
+            // Count the total number of flights and the number of on-time flights
+            for (IntWritable val : values) {
+                totalFlights++;
+                if (val.get() == 1) {
+                    onTimeFlights++;
+                }
+            }
+
+            // Calculate the percentage of on-time flights
+            double onTimeProb = (double) onTimeFlights / totalFlights;
+            context.write(key, new DoubleWritable(onTimeProb));
+        }
+
+        // Class to store the carrier and the percentage of on-time flights
+        class OnSchedule {
+            public String carrier;
+            public double onTimeProb;
+
+            public OnSchedule(String carrier, double onTimeProb) {
+                this.carrier = carrier;
+                this.onTimeProb = onTimeProb;
+            }
+        }
+
+        // Comparator to sort the carriers in descending order of on-time probability
+        class ReverseSort implements Comparator<OnSchedule> {
+            @Override
+            public int compare(OnSchedule a, OnSchedule b) {
+                return Double.compare(b.onTimeProb, a.onTimeProb);
+            }
+        }
+
+        // Cleanup method to sort the carriers in descending order of on-time
+        // probability
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            List<OnSchedule> onSchedules = new ArrayList<OnSchedule>();
+
+            // Add the carriers and their on-time probabilities to the list
+            for (Text key : context.getCurrentKey()) {
+                onSchedules.add(new OnSchedule(key.toString(), context.getCurrentValue().get()));
+            }
+
+            // Sort the carriers in descending order of on-time probability
+            Collections.sort(onSchedules, new ReverseSort());
+
+            for (OnSchedule flight : onSchedules) {
+                context.write(new Text(flight.carrier), new DoubleWritable(flight.onTimeProb));
+            }
+        }
 
     }
 
