@@ -49,6 +49,7 @@ public class Cancellation {
                 totalFlights += val.get();
             }
 
+            // Store the cancellation code and the number of flights
             cancellationCodes.add(new CancellationCode(key.toString(), totalFlights));
         }
 
