@@ -38,7 +38,7 @@ public class Schedule {
                     !delayDeparture.equals("DepDelay")) {
 
                 // Check if the sum of arrival and departure delays is less than the threshold
-                if (Integer.parseInt(delayArrival) + Integer.parseInt(delayDeparture) <= delayThreshold) {
+                if (Integer.parseInt(delayArrival) + Integer.parseInt(delayDeparture) <= delayThreshold) { // ERROR OCCURS IN EITHER BRANCH
                     context.write(new Text(carrier), new IntWritable(1)); // Less than threshold
                 } else {
                     context.write(new Text(carrier), new IntWritable(0)); // More than threshold
@@ -112,6 +112,9 @@ public class Schedule {
         job.setJarByClass(Schedule.class);
         job.setMapperClass(ScheduleMapper.class);
         job.setReducerClass(ScheduleReducer.class);
+        
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(IntWritable.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
