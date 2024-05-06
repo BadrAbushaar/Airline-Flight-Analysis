@@ -38,7 +38,10 @@ public class Schedule {
                     !delayDeparture.equals("DepDelay")) {
 
                 // Check if the sum of arrival and departure delays is less than the threshold
-                if (Integer.parseInt(delayArrival) + Integer.parseInt(delayDeparture) <= delayThreshold) { // ERROR OCCURS IN EITHER BRANCH
+                if (Integer.parseInt(delayArrival) + Integer.parseInt(delayDeparture) <= delayThreshold) { // ERROR
+                                                                                                           // OCCURS IN
+                                                                                                           // EITHER
+                                                                                                           // BRANCH
                     context.write(new Text(carrier), new IntWritable(1)); // Less than threshold
                 } else {
                     context.write(new Text(carrier), new IntWritable(0)); // More than threshold
@@ -89,13 +92,21 @@ public class Schedule {
         }
 
         // Cleanup method to sort the carriers in descending order of on-time
-        // probability
+        // probability and output top 3 and bottom 3 carriers
         protected void cleanup(Context context) throws IOException, InterruptedException {
             // Sort the carriers in descending order of on-time probability
             Collections.sort(onSchedules, new ReverseSort());
 
             for (OnSchedule flight : onSchedules) {
                 context.write(new Text(flight.carrier), new DoubleWritable(flight.onTimeProb));
+            }
+
+            for (int i = 0; i < Math.min(onSchedules.size(), 3); i++) {
+                context.write(new Text(onSchedules.get(i).carrier), new DoubleWritable(onSchedules.get(i).onTimeProb));
+            }
+
+            for (int i = Math.max(0, onSchedules.size() - 3); i < onSchedules.size(); i++) {
+                context.write(new Text(onSchedules.get(i).carrier), new DoubleWritable(onSchedules.get(i).onTimeProb));
             }
         }
 
@@ -112,7 +123,7 @@ public class Schedule {
         job.setJarByClass(Schedule.class);
         job.setMapperClass(ScheduleMapper.class);
         job.setReducerClass(ScheduleReducer.class);
-        
+
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
 
@@ -127,7 +138,7 @@ public class Schedule {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            FileInputFormat.addInputPath(job, new Path(filePath));     
+            FileInputFormat.addInputPath(job, new Path(filePath));
         }
 
         FileOutputFormat.setOutputPath(job, new Path(outputPath));
