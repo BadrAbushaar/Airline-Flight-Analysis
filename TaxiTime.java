@@ -94,10 +94,10 @@ public class TaxiTime {
             Collections.sort(avgTaxis, new ReverseSort());
 
             for (int i = 0; i < Math.min(avgTaxis.size(), 3); i++) {
-                context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).onTimeProb));
+                context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).avgTaxi));
             }
             for (int i = Math.max(0, avgTaxis.size() - 3); i < avgTaxis.size(); i++) {
-                context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).onTimeProb));
+                context.write(new Text(avgTaxis.get(i).carrier), new DoubleWritable(avgTaxis.get(i).avgTaxi));
             }
         }
 
