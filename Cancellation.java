@@ -38,16 +38,44 @@ public class Cancellation {
     }
 
     public static class CancellationReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+        ArrayList<CancellationCode> cancellationCodes = new ArrayList<>();
+
         public void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
             int totalFlights = 0;
 
-            // Count the total number of flights
+            // Count the number of cancelled flights
             for (IntWritable val : values) {
                 totalFlights += val.get();
             }
 
-            context.write(new Text(key), new IntWritable(totalFlights)); // Output the total number of cancelled flights
+            cancellationCodes.add(new CancellationCode(key.toString(), totalFlights));
+        }
+
+        class CancellationCode {
+            public String code;
+            public int count;
+
+            public CancellationCode(String code, int count) {
+                this.code = code;
+                this.count = count;
+            }
+        }
+
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            // Output the most common cancellation code
+            int maxCount = 0;
+            Text mostCommonCode = new Text();
+
+            for (CancellationCode code : cancellationCodes) {
+                if (code.count > maxCount) {
+                    maxCount = code.count;
+                    mostCommonCode.set(code.code);
+                }
+            }
+
+            // Output the most common cancellation code
+            context.write(mostCommonCode, new IntWritable(maxCount));
         }
     }
 
@@ -74,7 +102,7 @@ public class Cancellation {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            FileInputFormat.addInputPath(job, new Path(filePath));     
+            FileInputFormat.addInputPath(job, new Path(filePath));
         }
 
         FileOutputFormat.setOutputPath(job, new Path(outputPath));
