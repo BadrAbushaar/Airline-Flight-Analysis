@@ -57,41 +57,40 @@ public class TaxiTime {
             double count = 0;
             double totalTaxi = 0;
 
-            // Count the total number of flights and the number of on-time flights
+            // Count the number of flights and the total taxi time
             for (DoubleWritable val : values) {
                 count++;
                 totalTaxi += val.get();
             }
 
-            // Calculate the percentage of on-time flights
+            // Calculate the average taxi time
             double onTimeProb = (double) totalTaxi / count;
             context.write(key, new DoubleWritable(onTimeProb));
             avgTaxis.add(new AvgTaxi(key.toString(), onTimeProb));
         }
 
-        // Class to store the carrier and the percentage of on-time flights
+        // Class to store the carrier and the average taxi time
         class AvgTaxi {
             public String carrier;
-            public double onTimeProb;
+            public double avgTaxi;
 
-            public AvgTaxi(String carrier, double onTimeProb) {
+            public AvgTaxi(String carrier, double avgTaxi) {
                 this.carrier = carrier;
-                this.onTimeProb = onTimeProb;
+                this.avgTaxi = avgTaxi;
             }
         }
 
-        // Comparator to sort the carriers in descending order of on-time probability
+        // Comparator to sort the carriers in descending order of average taxi time
         class ReverseSort implements Comparator<AvgTaxi> {
             @Override
             public int compare(AvgTaxi a, AvgTaxi b) {
-                return Double.compare(b.onTimeProb, a.onTimeProb);
+                return Double.compare(b.avgTaxi, a.avgTaxi);
             }
         }
 
-        // Cleanup method to sort the carriers in descending order of on-time
-        // probability
+        // Cleanup method to output the top 3 and bottom 3 carriers by average taxi time
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            // Sort the carriers in descending order of on-time probability
+            // Sort the carriers in descending order of average taxi time
             Collections.sort(avgTaxis, new ReverseSort());
 
             for (int i = 0; i < Math.min(avgTaxis.size(), 3); i++) {
@@ -127,7 +126,7 @@ public class TaxiTime {
         for (int i = 0; i < numYears; i++) {
             int year = startYear + i;
             String filePath = inputFolder + "/" + year + ".csv";
-            FileInputFormat.addInputPath(job, new Path(filePath));     
+            FileInputFormat.addInputPath(job, new Path(filePath));
         }
 
         FileOutputFormat.setOutputPath(job, new Path(outputPath));
